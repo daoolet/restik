@@ -1,8 +1,9 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, get_object_or_404
 
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 
 from drf_spectacular.utils import extend_schema
 
@@ -14,28 +15,10 @@ def home(request):
     return HttpResponse("Hello World")
 
 
-class DishView(APIView):
+class DishViewSet(ModelViewSet):
+    queryset = Dish.objects.all()
     serializer_class = DishSerializer
 
-    def get(self, request):
-        all_dishes = Dish.objects.all()
-        serializer = DishSerializer(all_dishes, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    # @extend_schema(request=DishSerializer)
-    def post(self, request):
-        serializer = DishSerializer(data=request.data)
-
-        if serializer.is_valid():
-            dish_name = serializer.validated_data["name"]
-
-            if Dish.objects.filter(name=dish_name).exists():
-                return Response({"detail": "Already exists"}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                dish = serializer.save()
-                return Response({
-                    "detail": "Successful",
-                    "dish_id": dish.id
-                }, status=status.HTTP_200_OK)
-    
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class BeverageViewSet(ModelViewSet):
+    queryset = Beverage.objects.all()
+    serializer_class = BeverageSerializer

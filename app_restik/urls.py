@@ -1,10 +1,12 @@
 from django.urls import path
 
+from rest_framework.routers import DefaultRouter
+
 from . import views
 
 
-urlpatterns = [
-    path("", views.home, name="home"),
+router = DefaultRouter()
+router.register(r"dish", views.DishViewSet, basename="dish")
+router.register(r"beverage", views.BeverageViewSet, basename="beverage")
 
-    path("dishes/", views.DishView.as_view(), name="dish_view"),
-]
+urlpatterns = router.urls
