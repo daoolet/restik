@@ -1,32 +1,22 @@
 from django.db import models
+from django.core.validators import MinValueValidator
+
+from . import utils
 
 
 class Dish(models.Model):
-    STARTER = "SS"
-    SALAD = "SD"
-    SOUP = "SP"
-    MAIN = "MN"
-    SIDE = "SE"
-    DESSERT = "DS"
-    
-    DISH_CATEGORY_CHOICES = {
-        STARTER : "Starter",
-        SALAD : "Salads",
-        SOUP : "Soup",
-        MAIN : "Main",
-        SIDE : "Side",
-        DESSERT : "Dessert",
-    } 
-
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0)]
+    )
     category = models.CharField(
-        max_length=2,
-        choices=DISH_CATEGORY_CHOICES,
+        max_length=20,
+        choices=utils.DISH_CATEGORY_CHOICES,
         default=None
     )
-
 
     class Meta:
         verbose_name = "Dish"
@@ -37,29 +27,15 @@ class Dish(models.Model):
     
 
 class Beverage(models.Model):
-    STIMULATING = "ST"
-    REFRESHING = "RF"
-    ALCOHOL = "AL"
-    NOURISHING = "NR"
-    
-    BEVERAGE_CATEGORY_CHOICES = {
-        STIMULATING : "Stimulating",
-        REFRESHING : "Refreshing",
-        ALCOHOL : "Alcohol",
-        NOURISHING : "Nourishing",
-    } 
-
-
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     volume = models.FloatField()
     category = models.CharField(
-        max_length=2,
-        choices=BEVERAGE_CATEGORY_CHOICES,
+        max_length=20,
+        choices=utils.BEVERAGE_CATEGORY_CHOICES,
         default=None
     )
-
 
     class Meta:
         verbose_name = "Beverage"
@@ -70,25 +46,13 @@ class Beverage(models.Model):
     
 
 class Order(models.Model):
-    IN_PROCESS = "PR"
-    DONE = "DN"
-    CANCELLED = "CN"
-
-    ORDER_STATUS_CHOICES = {
-        IN_PROCESS : "In process",
-        DONE : "Done",
-        CANCELLED : "Cancelled",
-    }
-
-
     # customer = 
     date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
-        max_length=2,
-        choices=ORDER_STATUS_CHOICES,
+        max_length=10,
+        choices=utils.ORDER_STATUS_CHOICES,
         default=None
     )
-
 
     class Meta:
         verbose_name = "Order"
@@ -101,7 +65,7 @@ class Order(models.Model):
 class OrderedItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     dish = models.ForeignKey(Dish, on_delete=models.CASCADE)
-    quantity = models.IntegerField()
+    quantity = models.PositiveSmallIntegerField()
     notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
